@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Krāsoto detaļu kvalitāte</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#f5f5f5;color:#1a1a1a;max-width:480px;margin:0 auto;min-height:100vh}
+.hdr{background:#fff;border-bottom:1px solid #e0e0e0;padding:12px 16px;position:sticky;top:0;z-index:10}
+.hdr h1{font-size:16px;font-weight:600}
+.hdr p{font-size:11px;color:#666;margin-top:1px}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 8px;border-radius:100px;margin-top:4px}
+.b-ok{background:#E1F5EE;color:#085041}
+.b-err{background:#FAECE7;color:#712B13}
+.b-wait{background:#E6F1FB;color:#0C447C}
+.tabs{display:flex;border-bottom:1px solid #e0e0e0;background:#fff;position:sticky;top:57px;z-index:9}
+.tab{flex:1;padding:10px 2px;font-size:12px;border:none;background:none;cursor:pointer;color:#666;border-bottom:2px solid transparent}
+.tab.on{color:#1a1a1a;border-bottom-color:#1D9E75;font-weight:600}
+.sec{padding:12px 14px}
+.sep{height:8px;background:#f0f0f0;border-top:1px solid #e8e8e8;border-bottom:1px solid #e8e8e8}
+.lbl{font-size:11px;color:#666;margin-bottom:3px;display:block}
+.fg{margin-bottom:10px}
+select,input[type=text],input[type=number],input[type=date]{width:100%;height:40px;padding:0 12px;border:1px solid #ccc;border-radius:8px;font-size:14px;background:#fff;color:#1a1a1a;-webkit-appearance:none;appearance:none}
+select:focus,input:focus{outline:none;border-color:#1D9E75;box-shadow:0 0 0 3px rgba(29,158,117,.1)}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.card{background:#fff;border:1px solid #e0e0e0;border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.ctitle{font-size:13px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.ok-inp{height:40px;font-size:15px;font-weight:600;text-align:center;border:2px solid #1D9E75;border-radius:8px;background:#E1F5EE;color:#085041;width:100%}
+.def-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.di label{font-size:11px;color:#666;display:block;margin-bottom:2px}
+.di input{height:36px;font-size:13px;text-align:center}
+.op-block{border-radius:10px;padding:12px;margin-top:8px;position:relative}
+.op-teal{background:#F0FBF6;border:1px solid #5DCAA5}
+.op-blue{background:#EEF5FD;border:1px solid #85B7EB}
+.op-badge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:11px;font-weight:600;margin-right:6px}
+.ob-teal{background:#1D9E75;color:#fff}
+.ob-blue{background:#185FA5;color:#fff}
+.rm-btn{position:absolute;top:10px;right:10px;background:none;border:none;cursor:pointer;color:#999;font-size:18px;padding:2px 6px;line-height:1}
+.add-btn-teal{width:100%;padding:10px;background:#f9f9f9;border:1px dashed #5DCAA5;border-radius:8px;font-size:13px;cursor:pointer;color:#0F6E56;display:flex;align-items:center;justify-content:center;gap:6px;margin-top:8px}
+.add-btn-blue{width:100%;padding:10px;background:#f9f9f9;border:1px dashed #85B7EB;border-radius:8px;font-size:13px;cursor:pointer;color:#185FA5;display:flex;align-items:center;justify-content:center;gap:6px;margin-top:8px}
+.rej-box{display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding:7px 10px;border-radius:8px}
+.rej-k{background:#FAECE7;}
+.rej-s{background:#E6F1FB;}
+.save-btn{width:100%;padding:14px;background:#1D9E75;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px}
+.save-btn:active{transform:scale(.98);background:#0F6E56}
+.save-btn:disabled{background:#ccc;cursor:not-allowed}
+.cancel-btn{width:100%;padding:11px;background:#f5f5f5;color:#666;border:1px solid #ddd;border-radius:12px;font-size:13px;cursor:pointer;margin-top:8px}
+.erow{background:#fff;border:1px solid #e0e0e0;border-radius:12px;padding:10px 13px;margin-bottom:8px}
+.emeta{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.ename{font-size:13px;font-weight:600;flex:1}
+.edate{font-size:10px;color:#888;white-space:nowrap;margin-left:8px}
+.estats{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:4px}
+.pill{font-size:10px;padding:3px 8px;border-radius:100px;font-weight:500}
+.p-ok{background:#E1F5EE;color:#085041}
+.p-nok{background:#FAECE7;color:#712B13}
+.p-kop{background:#E6F1FB;color:#0C447C}
+.p-sop{background:#EAF3DE;color:#27500A}
+.p-sp{background:#E1F5EE;color:#085041}
+.p-nosp{background:#FAECE7;color:#712B13}
+.ebtns{display:flex;gap:6px;margin-top:8px}
+.ebtn{flex:1;padding:7px 8px;font-size:11px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;color:#666;display:flex;align-items:center;justify-content:center;gap:4px}
+.ebtn.eb{color:#185FA5;border-color:#85B7EB}
+.ebtn.ed{color:#993C1D;border-color:#F0997B}
+.ebtn.es{color:#0F6E56;border-color:#5DCAA5}
+.empty{text-align:center;padding:3rem 1rem;color:#888;font-size:14px}
+.sdiv{height:1px;background:#f0f0f0;margin:7px 0}
+.stitle{font-size:11px;font-weight:600;color:#888;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px}
+.srow{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:4px 0}
+.edit-banner{background:#E6F1FB;border:1px solid #85B7EB;border-radius:10px;padding:10px 13px;margin-bottom:10px;font-size:12px;color:#0C447C;display:flex;align-items:center;gap:6px}
+.toast{padding:10px 20px;border-radius:100px;font-size:13px;text-align:center;margin:10px 14px 0;opacity:0;transition:opacity .3s;font-weight:500;position:sticky;bottom:10px;z-index:100}
+.toast.show{opacity:1}
+.t-ok{background:#0F6E56;color:#fff}
+.t-err{background:#993C1D;color:#fff}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <h1>🎨 Krāsoto detaļu kvalitāte</h1>
+  <p id="hdr-d"></p>
+  <div id="sync-badge" class="badge b-ok">☁️ SharePoint savienots</div>
+</div>
+<div class="tabs">
+  <button class="tab on" onclick="sw('form')" id="tab-form">+ Ierakstīt</button>
+  <button class="tab" onclick="sw('list')" id="tab-list">☰ Ieraksti</button>
+  <button class="tab" onclick="sw('sum')" id="tab-sum">📊 Kopsavilkums</button>
+</div>
+
+<div id="v-form">
+<div class="sec">
+  <div id="edit-banner" class="edit-banner" style="display:none">✏️ Rediģē ierakstu</div>
+  <div class="r2">
+    <div class="fg"><label class="lbl">Datums</label><input type="date" id="f-date"></div>
+    <div class="fg"><label class="lbl">Nedēļa</label><input type="number" id="f-week" min="1" max="53" placeholder="—"></div>
+  </div>
+  <div class="fg"><label class="lbl">Klients</label>
+    <select id="f-client" onchange="filterArts()"><option value="">— izvēlieties klientu —</option></select>
+  </div>
+  <div class="fg"><label class="lbl">Artikuls</label>
+    <select id="f-art" onchange="fillName()"><option value="">— izvēlieties artikulu —</option></select>
+  </div>
+  <div class="fg"><label class="lbl">Nosaukums</label>
+    <input type="text" id="f-name" placeholder="Automātiski" readonly style="background:#f5f5f5;color:#444">
+  </div>
+</div>
+<div class="sep"></div>
+<div class="sec">
+  <div class="card" style="border-color:#5DCAA5">
+    <div class="ctitle" style="color:#0F6E56">🖌️ Krāsošana <span style="font-size:11px;font-weight:400;color:#888;margin-left:4px">— vairāki operatori</span></div>
+    <div id="kop-list"></div>
+    <button class="add-btn-teal" onclick="addKOp()">+ Pievienot krāsošanas operatoru</button>
+  </div>
+  <div class="card" style="border-color:#85B7EB">
+    <div class="ctitle" style="color:#185FA5">🔧 Slīpēšana <span style="font-size:11px;font-weight:400;color:#888;margin-left:4px">— vairāki operatori</span></div>
+    <div id="sop-list"></div>
+    <button class="add-btn-blue" onclick="addSOp()">+ Pievienot slīpēšanas operatoru</button>
+  </div>
+  <div class="fg"><label class="lbl">Piezīmes</label><input type="text" id="f-notes" placeholder="Neobligāts komentārs..."></div>
+  <button class="save-btn" id="save-btn" onclick="save()">☁️ <span id="save-lbl">Saglabāt → SharePoint</span></button>
+  <button class="cancel-btn" id="cancel-btn" style="display:none" onclick="cancelEdit()">Atcelt rediģēšanu</button>
+</div>
+</div>
+
+<div id="v-list" style="display:none">
+  <div style="padding:10px 14px 0 14px">
+    <div class="badge b-ok" style="font-size:11px;padding:6px 12px;margin-bottom:8px">☁️ Dati → Kvalitate_Krasosana.xlsx SharePoint</div>
+  </div>
+  <div style="padding:0 14px 14px" id="list-wrap"></div>
+</div>
+
+<div id="v-sum" style="display:none">
+<div class="sec">
+  <p class="stitle">Kopsavilkums</p>
+  <div class="r2" style="gap:8px;margin-bottom:8px">
+    <div style="background:#f5f5f5;border-radius:10px;padding:12px;text-align:center">
+      <p style="font-size:11px;color:#888">Ieraksti</p>
+      <p style="font-size:24px;font-weight:600" id="s-cnt">0</p>
+    </div>
+    <div style="background:#f5f5f5;border-radius:10px;padding:12px;text-align:center">
+      <p style="font-size:11px;color:#888">Sinhronizēti</p>
+      <p style="font-size:24px;font-weight:600;color:#0F6E56" id="s-sync">0</p>
+    </div>
+  </div>
+  <div class="r2" style="gap:8px;margin-bottom:14px">
+    <div style="background:#E1F5EE;border-radius:10px;padding:12px;text-align:center">
+      <p style="font-size:11px;color:#0F6E56">Kopā OK</p>
+      <p style="font-size:24px;font-weight:600;color:#085041" id="s-ok">0</p>
+    </div>
+    <div style="background:#FAECE7;border-radius:10px;padding:12px;text-align:center">
+      <p style="font-size:11px;color:#993C1D">Kopā noK</p>
+      <p style="font-size:24px;font-weight:600;color:#712B13" id="s-rej">0</p>
+    </div>
+  </div>
+  <div class="card"><p class="stitle">Pa krāsošanas operatoriem</p><div id="kop-sum"></div></div>
+  <div class="card" style="margin-top:10px"><p class="stitle">Pa slīpēšanas operatoriem</p><div id="sop-sum"></div></div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const FLOW='https://default49618aaee73643afacd21ee291d423.7e.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/94c621d3b0d84ead85c3a4dfd42d5b43/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=a39cG5nOjZ9M5F5ThVxTvO0GwJ_OGLYT7C954dF8XVs';
+const FLOW_DEL='https://default49618aaee73643afacd21ee291d423.7e.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/7cd40ab40cc549a093d8629e2f63c236/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=rEUEm9oPHIDxmAlHpJ-143uL9X05kNMoLCLkJJIENHs';
+const FLOW_GET='https://default49618aaee73643afacd21ee291d423.7e.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/ec1db384f24e4d709865f2c689cf33e0/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=AlY1pCLGUgu9Is4Z_Md-LPjvFmjU2WwCIioF4BqqOVs';
+
+const DEF_PARTS=[
+  {client:'KOMATSU',art:'BLA-001',name:'Panelis priekšējais'},
+  {client:'KOMATSU',art:'BLA-002',name:'Panelis aizmugurējais'},
+  {client:'KOMATSU',art:'BLA-004',name:'Jumta elements'},
+  {client:'VOLVO',  art:'BLA-003',name:'Durvju aplodas'},
+  {client:'VOLVO',  art:'BLA-005',name:'Spoguļa korpuss'},
+];
+
+let parts=[],entries=[],kOps=[],sOps=[],editId=null;
+
+function Nv(v){return parseInt(v)||0;}
+function N(id){return parseInt(document.getElementById(id)?.value)||0;}
+
+async function loadParts(){
+  if(FLOW_GET==='FLOW_GET_URL_HERE'){
+    try{const s=localStorage.getItem('qparts3');parts=s?JSON.parse(s):[...DEF_PARTS];}catch(e){parts=[...DEF_PARTS];}
+    buildClients();return;
+  }
+  try{
+    const r=await fetch(FLOW_GET,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});
+    if(!r.ok)throw new Error();
+    const data=await r.json();
+    const rows=Array.isArray(data)?data:(data.value||data.body?.value||[]);
+    if(rows.length>0){
+      parts=rows.map(row=>({
+        client:row.Klients||row.klients||'',
+        art:row.Artikuls||row.artikuls||'',
+        name:row.Nosaukums||row.nosaukums||''
+      })).filter(p=>p.art);
+      try{localStorage.setItem('qparts3',JSON.stringify(parts));}catch(ex){}
+    } else {
+      try{const s=localStorage.getItem('qparts3');parts=s?JSON.parse(s):[...DEF_PARTS];}catch(e){parts=[...DEF_PARTS];}
+    }
+  }catch(e){
+    try{const s=localStorage.getItem('qparts3');parts=s?JSON.parse(s):[...DEF_PARTS];}catch(ex){parts=[...DEF_PARTS];}
+  }
+  buildClients();
+}
+
+function init(){
+  try{const s=localStorage.getItem('qentries6');entries=s?JSON.parse(s):[];}catch(e){entries=[];}
+  const t=new Date();
+  document.getElementById('f-date').value=t.toISOString().split('T')[0];
+  document.getElementById('f-week').value=getWk(t);
+  document.getElementById('hdr-d').textContent=t.toLocaleDateString('lv-LV',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  addKOp();
+  addSOp();
+  loadParts();
+}
+
+function getWk(d){
+  const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+  const day=dt.getUTCDay()||7;dt.setUTCDate(dt.getUTCDate()+4-day);
+  const ys=new Date(Date.UTC(dt.getUTCFullYear(),0,1));
+  return Math.ceil((((dt-ys)/86400000)+1)/7);
+}
+
+function buildClients(){
+  const cl=[...new Set(parts.map(p=>p.client))].filter(Boolean);
+  const sel=document.getElementById('f-client');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">— izvēlieties klientu —</option>';
+  cl.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o);});
+  if(cur)sel.value=cur;
+  filterArts();
+}
+
+function filterArts(){
+  const cl=document.getElementById('f-client').value;
+  const sel=document.getElementById('f-art');
+  sel.innerHTML='<option value="">— izvēlieties artikulu —</option>';
+  (cl?parts.filter(p=>p.client===cl):parts).forEach(p=>{
+    const o=document.createElement('option');o.value=p.art;o.textContent=p.art;sel.appendChild(o);
+  });
+  document.getElementById('f-name').value='';
+}
+
+function fillName(){
+  const art=document.getElementById('f-art').value;
+  const p=parts.find(x=>x.art===art);
+  document.getElementById('f-name').value=p?p.name:'';
+}
+
+// ── Krāsošanas operatori ─────────────────────────────────────
+function calcKRej(i){
+  const op=kOps[i];
+  op.rej=(op.d0||0)+(op.d2||0)+(op.d3||0)+(op.d4||0)+(op.d5||0)+(op.d6||0);
+  const el=document.getElementById('krej-'+i);if(el)el.textContent=op.rej;
+}
+
+function renderKOps(){
+  const c=document.getElementById('kop-list');c.innerHTML='';
+  kOps.forEach((op,i)=>{
+    const d=document.createElement('div');
+    d.className='op-block op-teal';
+    d.style.marginBottom='8px';
+    d.innerHTML=`
+      <div style="display:flex;align-items:center;margin-bottom:10px">
+        <span class="op-badge ob-teal">${i+1}</span>
+        <span style="font-size:13px;font-weight:600;color:#0F6E56">Krāsošanas operators</span>
+        ${kOps.length>1?`<button class="rm-btn" onclick="removeKOp(${i})">×</button>`:''}
+      </div>
+      <div class="r2">
+        <div class="fg" style="margin-bottom:0"><label class="lbl">Op. ID / Nr.</label>
+          <input type="number" value="${op.id||''}" placeholder="piem. 39" oninput="kOps[${i}].id=this.value" style="border-color:#5DCAA5"></div>
+        <div class="fg" style="margin-bottom:0"><label class="lbl">OK daudzums</label>
+          <input type="number" class="ok-inp" value="${op.ok||''}" placeholder="0" min="0" oninput="kOps[${i}].ok=Nv(this.value)"></div>
+      </div>
+      <div style="margin-top:8px"><label class="lbl">2×OK</label>
+        <input type="number" value="${op.ok2||''}" placeholder="0" min="0" oninput="kOps[${i}].ok2=Nv(this.value)"
+          style="border-color:#5DCAA5;width:100%;height:40px;padding:0 12px;border-radius:8px;font-size:14px;background:#fff;color:#1a1a1a;border:1px solid #5DCAA5"></div>
+      <div class="stitle" style="margin-top:12px">Defekti</div>
+      <div class="def-grid">
+        <div class="di"><label>0 · Aizskarta detaļa</label><input type="number" value="${op.d0||''}" placeholder="0" min="0" oninput="kOps[${i}].d0=Nv(this.value);calcKRej(${i})"></div>
+        <div class="di"><label>2 · Švīkas, skrāpējumi</label><input type="number" value="${op.d2||''}" placeholder="0" min="0" oninput="kOps[${i}].d2=Nv(this.value);calcKRej(${i})"></div>
+        <div class="di"><label>3 · Notecējumi</label><input type="number" value="${op.d3||''}" placeholder="0" min="0" oninput="kOps[${i}].d3=Nv(this.value);calcKRej(${i})"></div>
+        <div class="di"><label>4 · Krāsas biezums</label><input type="number" value="${op.d4||''}" placeholder="0" min="0" oninput="kOps[${i}].d4=Nv(this.value);calcKRej(${i})"></div>
+        <div class="di"><label>5 · Gruži</label><input type="number" value="${op.d5||''}" placeholder="0" min="0" oninput="kOps[${i}].d5=Nv(this.value);calcKRej(${i})"></div>
+        <div class="di"><label>6 · Uzvārījies</label><input type="number" value="${op.d6||''}" placeholder="0" min="0" oninput="kOps[${i}].d6=Nv(this.value);calcKRej(${i})"></div>
+      </div>
+      <div class="rej-box rej-k">
+        <span style="font-size:11px;color:#993C1D">Noraidīts op.${i+1}</span>
+        <strong style="font-size:14px;color:#712B13" id="krej-${i}">${op.rej||0}</strong>
+      </div>`;
+    c.appendChild(d);
+  });
+}
+
+function addKOp(){kOps.push({id:'',ok:0,ok2:0,d0:0,d2:0,d3:0,d4:0,d5:0,d6:0,rej:0});renderKOps();}
+function removeKOp(i){if(kOps.length<=1)return;kOps.splice(i,1);renderKOps();}
+
+// ── Slīpēšanas operatori ─────────────────────────────────────
+function calcSRej(i){
+  const op=sOps[i];
+  op.rej=(op.d1||0)+(op.d2||0)+(op.d3||0)+(op.d4||0)+(op.d7||0)+(op.d6||0);
+  const el=document.getElementById('srej-'+i);if(el)el.textContent=op.rej;
+}
+
+function renderSOps(){
+  const c=document.getElementById('sop-list');c.innerHTML='';
+  sOps.forEach((op,i)=>{
+    const d=document.createElement('div');
+    d.className='op-block op-blue';
+    d.style.marginBottom='8px';
+    d.innerHTML=`
+      <div style="display:flex;align-items:center;margin-bottom:10px">
+        <span class="op-badge ob-blue">${i+1}</span>
+        <span style="font-size:13px;font-weight:600;color:#185FA5">Slīpēšanas operators</span>
+        ${sOps.length>1?`<button class="rm-btn" onclick="removeSOp(${i})">×</button>`:''}
+      </div>
+      <div class="r2">
+        <div class="fg" style="margin-bottom:0"><label class="lbl">Op. ID / Nr.</label>
+          <input type="number" value="${op.id||''}" placeholder="piem. 2" oninput="sOps[${i}].id=this.value" style="border-color:#85B7EB"></div>
+        <div class="fg" style="margin-bottom:0"><label class="lbl">OK daudzums</label>
+          <input type="number" value="${op.ok||''}" placeholder="0" min="0" oninput="sOps[${i}].ok=Nv(this.value)"
+            style="height:40px;border:2px solid #378ADD;border-radius:8px;background:#E6F1FB;color:#0C447C;font-size:15px;font-weight:600;text-align:center;width:100%"></div>
+      </div>
+      <div class="stitle" style="margin-top:12px">Defekti</div>
+      <div class="def-grid">
+        <div class="di"><label>1 · Caurumi</label><input type="number" value="${op.d1||''}" placeholder="0" min="0" oninput="sOps[${i}].d1=Nv(this.value);calcSRej(${i})"></div>
+        <div class="di"><label>2 · Švīkas, skrāpējumi</label><input type="number" value="${op.d2||''}" placeholder="0" min="0" oninput="sOps[${i}].d2=Nv(this.value);calcSRej(${i})"></div>
+        <div class="di"><label>3 · Notecējumi</label><input type="number" value="${op.d3||''}" placeholder="0" min="0" oninput="sOps[${i}].d3=Nv(this.value);calcSRej(${i})"></div>
+        <div class="di"><label>4 · Krāsas biezums</label><input type="number" value="${op.d4||''}" placeholder="0" min="0" oninput="sOps[${i}].d4=Nv(this.value);calcSRej(${i})"></div>
+        <div class="di"><label>7 · Nav izslīpēts, viļņi</label><input type="number" value="${op.d7||''}" placeholder="0" min="0" oninput="sOps[${i}].d7=Nv(this.value);calcSRej(${i})"></div>
+        <div class="di"><label>6 · Uzvārījies</label><input type="number" value="${op.d6||''}" placeholder="0" min="0" oninput="sOps[${i}].d6=Nv(this.value);calcSRej(${i})"></div>
+      </div>
+      <div class="rej-box rej-s">
+        <span style="font-size:11px;color:#185FA5">Noraidīts op.${i+1}</span>
+        <strong style="font-size:14px;color:#0C447C" id="srej-${i}">${op.rej||0}</strong>
+      </div>`;
+    c.appendChild(d);
+  });
+}
+
+function addSOp(){sOps.push({id:'',ok:0,d1:0,d2:0,d3:0,d4:0,d7:0,d6:0,rej:0});renderSOps();}
+function removeSOp(i){if(sOps.length<=1)return;sOps.splice(i,1);renderSOps();}
+
+// ── Saglabāšana ───────────────────────────────────────────────
+function getData(){
+  return{
+    date:document.getElementById('f-date').value,
+    week:document.getElementById('f-week').value,
+    client:document.getElementById('f-client').value,
+    art:document.getElementById('f-art').value,
+    name:document.getElementById('f-name').value,
+    kOps:kOps.map(o=>({...o})),
+    sOps:sOps.map(o=>({...o})),
+    notes:document.getElementById('f-notes').value.trim()
+  };
+}
+function genId(){
+  return 'R'+Math.random().toString(36).substr(2,8).toUpperCase();
+}
+
+async function sendFlow(data){
+  const maxOps=Math.max(data.kOps.length,data.sOps.length);
+  const reqs=[];
+  for(let i=0;i<maxOps;i++){
+    const ko=data.kOps[i]||{};
+    const so=data.sOps[i]||{};
+    const payload={
+      recordId:data.recordId||'',
+      datums:data.date,
+      nedela:String(data.week),
+      klients:data.client||'',
+      artikuls:data.art||'',
+      nosaukums:data.name||'',
+      krOp:String(ko.id||''),
+      krOK:String(ko.ok||0),
+      krOK2:String(ko.ok2||0),
+      krNoK:String(ko.rej||0),
+      krD0:String(ko.d0||0),
+      krD2:String(ko.d2||0),
+      krD3:String(ko.d3||0),
+      krD4:String(ko.d4||0),
+      krD5:String(ko.d5||0),
+      krD6:String(ko.d6||0),
+      slOp:String(so.id||''),
+      slOK:String(so.ok||0),
+      slNoK:String(so.rej||0),
+      slD1:String(so.d1||0),
+      slD2:String(so.d2||0),
+      slD3:String(so.d3||0),
+      slD4:String(so.d4||0),
+      slD7:String(so.d7||0),
+      slD6:String(so.d6||0),
+      piezimes:i===0?data.notes:''
+    };
+    reqs.push(fetch(FLOW,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}));
+  }
+  const results=await Promise.all(reqs);
+  return results.every(r=>r.ok||r.status===202);
+}
+
+async function save(){
+  const d=getData();
+  if(!d.art){toast('Izvēlieties artikulu!','err');return;}
+  if(!d.kOps[0]?.id){toast('Ievadiet krāsošanas op. ID!','err');return;}
+
+  const btn=document.getElementById('save-btn');
+  btn.disabled=true;
+  document.getElementById('save-lbl').textContent='Sūta uz SharePoint...';
+  setBadge('wait');
+
+  if(!editId) d.recordId = genId();
+  else {
+    const existing=entries.find(e=>e.id===editId);
+    if(existing) d.recordId=existing.recordId||genId();
+  }
+
+  let ok=false;
+  try{ok=await sendFlow(d);}catch(e){ok=false;}
+
+  const entry={...d,id:editId||Date.now(),synced:ok};
+
+  if(editId!==null){
+    const idx=entries.findIndex(e=>e.id===editId);
+    if(idx>-1)entries[idx]=entry;
+    editId=null;
+    document.getElementById('edit-banner').style.display='none';
+    document.getElementById('cancel-btn').style.display='none';
+  }else{
+    entries.push(entry);
+  }
+
+  try{localStorage.setItem('qentries6',JSON.stringify(entries));}catch(ex){}
+
+  btn.disabled=false;
+  document.getElementById('save-lbl').textContent='Saglabāt → SharePoint';
+  setBadge(ok?'ok':'err');
+  toast(ok?'✓ Saglabāts SharePoint!':'⚠️ Saglabāts lokāli — pārbaudiet savienojumu',ok?'ok':'err');
+
+  if(ok)clearForm();
+}
+
+function setBadge(s){
+  const b=document.getElementById('sync-badge');
+  b.className='badge';
+  if(s==='ok'){b.classList.add('b-ok');b.textContent='☁️ SharePoint savienots';}
+  else if(s==='err'){b.classList.add('b-err');b.textContent='⚠️ Savienojuma kļūda';}
+  else{b.classList.add('b-wait');b.textContent='⏳ Sinhronizē...';}
+}
+
+function clearForm(){
+  kOps=[];sOps=[];
+  document.getElementById('f-client').value='';
+  document.getElementById('f-art').innerHTML='<option value="">— izvēlieties artikulu —</option>';
+  document.getElementById('f-name').value='';
+  document.getElementById('f-notes').value='';
+  addKOp();addSOp();
+}
+
+function cancelEdit(){
+  editId=null;
+  document.getElementById('edit-banner').style.display='none';
+  document.getElementById('cancel-btn').style.display='none';
+  document.getElementById('save-lbl').textContent='Saglabāt → SharePoint';
+  clearForm();
+}
+
+function fillForm(e){
+  document.getElementById('f-date').value=e.date;
+  document.getElementById('f-week').value=e.week;
+  if(e.client){document.getElementById('f-client').value=e.client;filterArts();}
+  document.getElementById('f-art').value=e.art;
+  document.getElementById('f-name').value=e.name||'';
+  kOps=(e.kOps||[]).map(o=>({...o}));
+  sOps=(e.sOps||[]).map(o=>({...o}));
+  renderKOps();renderSOps();
+  document.getElementById('f-notes').value=e.notes||'';
+}
+
+function startEdit(id){
+  const e=entries.find(x=>x.id===id);if(!e)return;
+  editId=id;fillForm(e);
+  document.getElementById('edit-banner').style.display='flex';
+  document.getElementById('cancel-btn').style.display='block';
+  document.getElementById('save-lbl').textContent='Atjaunināt → SharePoint';
+  sw('form');window.scrollTo(0,0);
+}
+
+async function delEntry(id){
+  const e=entries.find(x=>x.id===id);
+  if(!e)return;
+  if(!confirm('Dzēst šo ierakstu arī no Excel SharePoint?'))return;
+  entries=entries.filter(x=>x.id!==id);
+  try{localStorage.setItem('qentries6',JSON.stringify(entries));}catch(ex){}
+  renderList();
+  if(e.recordId&&FLOW_DEL!=='DEL_FLOW_URL_HERE'){
+    try{
+      await fetch(FLOW_DEL,{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({recordId:e.recordId})});
+      toast('✓ Izdzēsts no Excel','ok');
+    }catch(ex){toast('Lokāli izdzēsts — Excel jādzēš manuāli','err');}
+  } else {
+    toast('Lokāli izdzēsts','ok');
+  }
+}
+
+async function retrySend(id){
+  const e=entries.find(x=>x.id===id);if(!e)return;
+  toast('Sūta...','ok');
+  try{
+    const ok=await sendFlow(e);
+    if(ok){e.synced=true;try{localStorage.setItem('qentries6',JSON.stringify(entries));}catch(ex){}toast('✓ Sinhronizēts!','ok');renderList();}
+    else{toast('Kļūda — mēģiniet vēlreiz','err');}
+  }catch(ex){toast('Savienojuma kļūda','err');}
+}
+
+// ── Saraksts ──────────────────────────────────────────────────
+function renderList(){
+  const w=document.getElementById('list-wrap');w.innerHTML='';
+  if(!entries.length){w.innerHTML='<div class="empty">📭<br><br>Nav ierakstu.</div>';return;}
+  [...entries].reverse().forEach(e=>{
+    const div=document.createElement('div');div.className='erow';
+    const kStr=(e.kOps||[]).filter(o=>o.id).map(o=>`<span class="pill p-kop">Kr.${o.id}: OK ${o.ok}${o.rej>0?' noK '+o.rej:''}</span>`).join('');
+    const sStr=(e.sOps||[]).filter(o=>o.id).map(o=>`<span class="pill p-sop">Sl.${o.id}: OK ${o.ok}${o.rej>0?' noK '+o.rej:''}</span>`).join('');
+    const sp=e.synced?'<span class="pill p-sp">☁️ SP</span>':'<span class="pill p-nosp">⚠️ Nav SP</span>';
+    div.innerHTML=`
+      <div class="emeta">
+        <span class="ename">${e.client?e.client+' · ':''}${e.art}${e.name?' — '+e.name:''}</span>
+        <span class="edate">${e.date}</span>
+      </div>
+      <div class="estats">${kStr}${sp}</div>
+      ${sStr?`<div class="estats" style="margin-top:3px">${sStr}</div>`:''}
+      ${e.notes?`<p style="font-size:11px;color:#888;margin-top:4px;font-style:italic">${e.notes}</p>`:''}
+      <div class="ebtns">
+        <button class="ebtn eb" onclick="startEdit(${e.id})">✏️ Rediģēt</button>
+        ${!e.synced?`<button class="ebtn es" onclick="retrySend(${e.id})">☁️ Mēģināt vēlreiz</button>`:''}
+        <button class="ebtn ed" onclick="delEntry(${e.id})">🗑 Dzēst</button>
+      </div>`;
+    w.appendChild(div);
+  });
+}
+
+// ── Kopsavilkums ──────────────────────────────────────────────
+function renderSum(){
+  const totOK=entries.reduce((s,e)=>s+(e.kOps||[]).reduce((a,o)=>a+(o.ok||0),0),0);
+  const totRej=entries.reduce((s,e)=>s+(e.kOps||[]).reduce((a,o)=>a+(o.rej||0),0),0);
+  const sync=entries.filter(e=>e.synced).length;
+  document.getElementById('s-cnt').textContent=entries.length;
+  document.getElementById('s-sync').textContent=sync;
+  document.getElementById('s-ok').textContent=totOK;
+  document.getElementById('s-rej').textContent=totRej;
+
+  const kagg={};
+  entries.forEach(e=>(e.kOps||[]).forEach(o=>{
+    if(!o.id)return;
+    if(!kagg[o.id])kagg[o.id]={ok:0,ok2:0,rej:0};
+    kagg[o.id].ok+=o.ok||0;kagg[o.id].ok2+=o.ok2||0;kagg[o.id].rej+=o.rej||0;
+  }));
+  document.getElementById('kop-sum').innerHTML=Object.keys(kagg).length
+    ?Object.entries(kagg).map(([id,v])=>`<div class="srow"><span>Op. #${id}</span><span><span style="color:#0F6E56;margin-right:10px">OK: ${v.ok}${v.ok2?' · 2×OK: '+v.ok2:''}</span><span style="color:#993C1D">noK: ${v.rej}</span></span></div>`).join('<div class="sdiv"></div>')
+    :'<p style="font-size:13px;color:#aaa">Nav datu</p>';
+
+  const sagg={};
+  entries.forEach(e=>(e.sOps||[]).forEach(o=>{
+    if(!o.id)return;
+    if(!sagg[o.id])sagg[o.id]={ok:0,rej:0};
+    sagg[o.id].ok+=o.ok||0;sagg[o.id].rej+=o.rej||0;
+  }));
+  document.getElementById('sop-sum').innerHTML=Object.keys(sagg).length
+    ?Object.entries(sagg).map(([id,v])=>`<div class="srow"><span>Op. #${id}</span><span><span style="color:#0F6E56;margin-right:10px">OK: ${v.ok}</span><span style="color:#993C1D">noK: ${v.rej}</span></span></div>`).join('<div class="sdiv"></div>')
+    :'<p style="font-size:13px;color:#aaa">Nav datu</p>';
+}
+
+function sw(tab){
+  ['form','list','sum'].forEach(t=>{
+    document.getElementById('v-'+t).style.display=t===tab?'block':'none';
+    document.getElementById('tab-'+t).classList.toggle('on',t===tab);
+  });
+  if(tab==='list')renderList();
+  if(tab==='sum')renderSum();
+}
+
+function toast(msg,type){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast '+(type==='err'?'t-err':'t-ok')+' show';
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+init();
+</script>
+</body>
+</html>
